@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/home/suriya/webd/rails-space/depot_scaf/app/controllers'
+let g:netrw_dirhist_2='/home/suriya/webd/rails-space/simple_cms/app/models'
+let g:netrw_dirhist_3='/home/suriya/webd/rails-space/simple_cms/app/views/demo'
+let g:netrw_dirhist_4='/home/suriya/webd/rails-space/depot/app/models'
+let g:netrw_dirhist_5='/home/suriya/techrepo/os/00_intro/code/fol1'
+let g:netrw_dirhist_6='/home/suriya/repo/cv-workspace'
+let g:netrw_dirhist_7='/home/suriya/.vim/autoload/airline'
+let g:netrw_dirhist_8='/home/suriya/Castalia/src/node/mobilityManager/randomWpMobilityManager'
