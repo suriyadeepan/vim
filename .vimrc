@@ -122,3 +122,7 @@ au Filetype python setl et ts=4 sw=4
 
 " enable 256 colors
 set t_Co=256
+
+
+" spell check with F7
+map <F7> :setlocal spell spelllang=en_us<cr>
