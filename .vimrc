@@ -20,8 +20,9 @@ set incsearch           " Incremental search
 set hidden              " Hide buffers when they are abandoned
 
 " color github
-color lucius
-let g:lucius_style="light"
+" color lucius
+" let g:lucius_style="light"
+color distinguished
 
 "Bundle 'christoomey/vim-tmux-navigator'
 "let $XIKI_DIR = "/home/suriya/src/xiki"
