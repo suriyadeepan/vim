@@ -1,6 +1,13 @@
 " Does this fix characters inserted by arrow keys? 
-"  Nope! TODO : fix this
+"  Nope! TODO fix this
 set nocompatible
+
+" source files
+"  o Templates
+"   source has to do for now
+"   TODO replace with runtime
+:source $HOME/.vim/templates/templates.vim
+
 " basic config
 " color 1989
 color badwolf " Doug Black, A Good Vimrc, https://dougblack.io/words/a-good-vimrc.html
@@ -65,24 +72,26 @@ nnoremap <leader>qq :qa!<cr>
 "  quit file
 nnoremap <leader>q :q<cr>
 "  vsplit
-nnoremap <leader>v :vsplit<cr>
+nnoremap <leader>v :execute "rightbelow vsplit " . bufname('#')<cr>
 "  delete rest of the line
 nnoremap <leader>d d$
 "  next file
 nnoremap <leader>n :bn<cr>
-"  copy to clipboard
+"  copy line to clipboard
 nnoremap <leader>Y "+Y
+"  copy whole file to clipboard
+nnoremap <leader>yy vggG"+y
 "   (in visual mode) copy to clipboard
 vnoremap <leader>y "+y
 "  paste from clipboard
 nnoremap <leader>p "+p
 "  center last line on file
 nnoremap <leader>z Gzz
-"  TODO : how to store a line number; perform an operation; 
+"  TODO how to store a line number; perform an operation; 
 "          then jump back to original line
 
 " list buffers
-"  TODO : figure out a convenient alternative
+"  TODO figure out a convenient alternative
 nnoremap <leader>ls :ls<cr>
 
 " set tab to 2 spaces
@@ -97,21 +106,22 @@ set tabstop=4 softtabstop=0 expandtab shiftwidth=2 smarttab
 filetype indent on
 
 " execute python script
-"  TODO : analyze
+"  TODO analyze
 " nnoremap <leader>sp <esc>:w<cr>:!clear;python3 %<cr>
-"  NOTE : moved to auto_python
+"  NOTE moved to auto_python
 
 " Quote a string
-"  TODO : analyze
+"  TODO analyze
 nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
-" TODO : vim-surround
+" TODO vim-surround
 
 " End of line mapping
 nnoremap $ <nop>
 nnoremap L $
 "  Start of line mapping
 nnoremap 0 <nop>
-nnoremap H 0
+"  TODO this doesn't work; fix it
+nnoremap H 0w
 
 " <ESC> mapping
 inoremap jk <esc>
@@ -129,8 +139,8 @@ nnoremap <Right> <NOP>
 nnoremap , <Nop>
 
 " built-in autocomplete
-"  TODO : supertab plugin
-"  TODO : autocomplete with dot
+"  TODO supertab plugin
+"  TODO autocomplete with dot
 " :inoremap <leader><tab> <c-n>
 inoremap jl <c-n>
 
@@ -149,26 +159,40 @@ augroup auto_python
   " multiline comment in visual mode
 augroup END
 
-" TODO : when opening multiple files, open 2 files with a vsplit
+" TODO when opening multiple files, open 2 files with a vsplit
 
 "  asciidoc autocmd
 augroup auto_adoc
   autocmd!
-  autocmd BufNewFile,BufRead *.adoc :vsplit template.adoc | Nread https://gist.githubusercontent.com/suriyadeepan/cef70efe02bae33935a6a78825aa8af2/raw/868a373aab278f569220eb4a1824ced1a6304b4d/template.adoc
+  autocmd BufNewFile,BufRead *.adoc :vsplit template.adoc | Nread https://raw.githubusercontent.com/asciidoctor/asciidoctor.org/master/docs/_includes/asciidoc-article-template.adoc
+  " TODO autocomplete feature
+  "  "src" should generate a block to enter source code in
+  autocmd FileType asciidoc :iabbrev <buffer> src [source,bash]<cr>----<cr># your code goes here<cr>----<esc>
+  autocmd FileType asciidoc :iabbrev <buffer> quote [____<cr>I think; Therefore I am<cr>____<esc>
 augroup END
 
-"  pull .gitignore from web
-"   TODO fix this
-" augroup auto_gitignore
-"   autocmd!
-"   autocmd BufNewFile *.gitignore :Nread https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore | write
-" augroup END
+"  pull templates from web
+augroup auto_templates
+  autocmd!
+  " pull .gitignore from web
+  autocmd BufNewFile *.gitignore :call PullGitignore() | :e!
+  " pull LICENSE
+  autocmd BufNewFile LICENSE :call PullLicense() | :e!
+  " pull PYTHON templates
+  "  [1] main.py
+  autocmd BufNewFile main.py :call PullPythonMain() | :e!
+  "  [2] train.py
+  autocmd BufNewFile train.py :call PullPythonTrain() | :e!
+augroup END
 
 "  vimrc autocmd
 augroup auto_vimrc
   autocmd!
   autocmd FileType vim :iabbrev <buffer> aug augroup auto_<name><cr>autocmd!<cr>autocmd <FileType/BufNewFile,BufRead> * :echom <command> \| <command><cr>augroup END
   autocmd FileType vim nnoremap <buffer> <localleader>c I" <esc>
+  " execute file
+  autocmd FileType vim nnoremap <leader>e :w<cr>:so %<cr>
+  " TODO add auto-fold selected text mapping
 augroup END
 
 "  create requirements.txt using `pip freeze`
@@ -209,24 +233,28 @@ augroup END
 augroup auto_rsync
   autocmd!
   " rsync
-  autocmd BufRead .rsync nnoremap <leader>rs <esc>:wa<cr>:vert term ++close bash .rsync<cr>
+  autocmd BufRead .rsync nnoremap <leader>rs <esc>:wa<cr>:term ++close bash .rsync<cr>
   " rsync : dry run
-  autocmd BufRead .rsync nnoremap <leader>rd <esc>:wa<cr>:vert term bash .rsync --dry-run<cr>
+  autocmd BufRead .rsync nnoremap <leader>rd <esc>:wa<cr>:term bash .rsync --dry-run<cr>
   " rsync + train
   " TODO figure this out and fix it
   " autocmd BufRead .rsync nnoremap <leader>rst <esc>:wa<cr>:term `bash .rsync` && `run train`<cr>
   " train
-  autocmd BufRead .rsync nnoremap <leader>rt <esc>:wa<cr>:vert term bash run train<cr>
+  autocmd BufRead .rsync nnoremap <leader>rt <esc>:wa<cr>:term bash run train<cr>
   " evaluate
-  autocmd BufRead .rsync nnoremap <leader>re <esc>:wa<cr>:vert term bash run evaluate<cr>
+  autocmd BufRead .rsync nnoremap <leader>re <esc>:wa<cr>:term bash run evaluate<cr>
   " predict
-  autocmd BufRead .rsync nnoremap <leader>rp <esc>:wa<cr>:vert term bash run predict<cr>
+  autocmd BufRead .rsync nnoremap <leader>rp <esc>:wa<cr>:term bash run predict<cr>
+  " other
+  autocmd BufRead .rsync nnoremap <leader>ro <esc>:wa<cr>:term bash run other<cr>
+  " local run
+  autocmd BufRead .rsync nnoremap <leader>rl <esc>:wa<cr>:term bash run local<cr>
 augroup END
 
 " put vim in paste mode
 "  solves "[200~ ... [201~" issue
 " :set paste
-"  TODO : this puts vim in [INSERT + paste] mode 
+"  TODO this puts vim in [INSERT + paste] mode 
 "          where jk doesn't put me in Normal mode
 
 " Operator Pending Mappings
@@ -238,7 +266,7 @@ onoremap f /return<cr>
 onoremap in( :<c-u>normal! f(vi(<cr>
 "  inside last paranthesis
 " onoremap il( :<c-u>normal! F)vi(<cr>
-" TODO : figure out what the hell is happening here?
+" TODO figure out what the hell is happening here?
 onoremap il( ?(<cr> :<c-u>normal! vi(<cr>
 
 "  Markdown heading
@@ -249,11 +277,22 @@ onoremap ih :<c-u>execute "normal! ?^==\\+$\r:nohlsearch\rkvg_"<cr>
 "  jump to normal mode
 "   <space> works as leader in normal mode
 " :tmap jk <C-w>N
-" NOTE : check inside auto_term
+" NOTE check inside auto_term
 
 " Highlight keywords
 :match Todo /NOTE/
+" stop highlighting; it's so annoying 
+nnoremap <leader>no :noh<cr> 
 
 " Search options
 set hlsearch  " hightlight matches
 set incsearch " live search
+
+" Status Line
+set statusline=%f\ -\ FileType:\ %y
+set statusline+=%=    " switch to right side
+set statusline+=%l/%L " current_line / total_lines
+
+" Scrolling
+"  TODO get this to work properly
+nnoremap <leader>zz 20jzz
